@@ -6,6 +6,20 @@ def limpar_tela(): #Funçao limpar tela universal
     subprocess.run(['cls' if sys.platform == 'win32' else 'clear'], shell=True)
 
 #Precisa de uma função para guardar e ler os dados do registro/Login em json
+def salvar_dados_arquivo(nome_arquivo, dados): #Salva os arquivos em json
+    with open(nome_arquivo, 'w') as arquivo:
+        json.dump(dados, arquivo, indent=2)
+
+def guardar_dados(nome_funcao, retorno, dados_usuario): #Manipula os dados para salvar em json
+    dados_usuario[nome_funcao] = retorno
+
+def ler_dados(nome_arquivo): #Acessa e lê os dados dentro do Json
+    try:
+        with open(nome_arquivo, 'r') as arquivo:
+            dados = json.load(arquivo)
+            return dados
+    except FileNotFoundError:
+        return None
 
 def voltar(): #Funçoes de voltar dentro do portal
     print('')
@@ -51,6 +65,16 @@ def aplica_voltar(): #Opera a funçao voltar
         aplica_voltar()
 
 #Precisamos de algo para validar a entrada de números apenas
+def validar_numero(mensagem): #Confirma que so existam numeros em inputs numerais
+    while True:
+        try:
+            entrada = int(input(mensagem))
+            return entrada
+
+        except ValueError:
+            limpar_tela()
+            print('')
+            print("Por favor, insira apenas números.")
 
 def checar_cadastro(): #Verifica se o usuário é ou não cadstrado
     print('')
