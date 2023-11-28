@@ -2,23 +2,37 @@ import sys
 import subprocess
 import json
 
-def limpar_tela(): #Funçao limpar tela universal
+def limpar_tela(): #Função universal de limpar tela
     subprocess.run(['cls' if sys.platform == 'win32' else 'clear'], shell=True)
 
-def salvar_dados_arquivo(nome_arquivo, dados): #Salva os arquivos em json
-    with open(nome_arquivo, 'w') as arquivo:
-        json.dump(dados, arquivo, indent=2)
+def salvar_dados_arquivo(nome_arquivo, dados): #Salva os dados em Json
+    try:
+        with open(nome_arquivo, 'r') as arquivo_existente:
+            dados_existente = json.load(arquivo_existente)
+    except FileNotFoundError:
+        dados_existente = {}
 
-def guardar_dados(nome_funcao, retorno, dados_usuario): #Manipula os dados para salvar em json
-    dados_usuario[nome_funcao] = retorno
+    email = dados.get('E-mail', None)
 
-def ler_dados(nome_arquivo): #Acessa e lê os dados dentro do Json
+    if email is not None:
+        if email in dados_existente:
+            print(f'O e-mail {email} já possui um cadastro.')
+        else:
+            dados_existente[email] = dados
+            with open(nome_arquivo, 'w') as arquivo:
+                json.dump(dados_existente, arquivo, indent=2)
+                print(f'Cadastro do e-mail {email} salvo com sucesso.')
+
+def ler_dados(nome_arquivo): #Lê o json
     try:
         with open(nome_arquivo, 'r') as arquivo:
             dados = json.load(arquivo)
             return dados
     except FileNotFoundError:
-        return None
+        return {}
+
+def guardar_dados(nome_funcao, retorno, dados_usuario): #Manipula os dados para salvar em json
+    dados_usuario[nome_funcao] = retorno
 
 def voltar(): #Funçoes de voltar dentro do portal
     print('')
@@ -43,7 +57,7 @@ def voltar(): #Funçoes de voltar dentro do portal
         limpar_tela()
         print('')
         print('Você saiu do programa.')
-        exit()
+        sys.exit()
 
     else:
         limpar_tela()
@@ -63,26 +77,25 @@ def aplica_voltar(dados_usuario): #Opera a funçao voltar
     else:
         aplica_voltar(dados_usuario)
 
-def validar_numero(mensagem): #Confirma que so existam numeros em inputs numerais
+def validar_numero(mensagem): #Valida se apenas numeros foram digitados
     while True:
         try:
             entrada = int(input(mensagem))
             return entrada
-
         except ValueError:
             limpar_tela()
             print('')
             print("Por favor, insira apenas números.")
             print('')
 
-def checar_cadastro(dados_usuario): #Verifica se o usuário é ou não cadstrado
+def checar_cadastro(dados_usuario): #Verifica se o usuario é cadastrado
     print('')
     print('|||||||||||||||||||||||||  Angel Care  ||||||||||||||||||||||||||||')
     print('|||||||||| Bem-vindo ao nosso sistema de atendimento pessoal |||||||||')
     print('')
     print('-----------------| Você já possui cadastro? |----------------------')
     print('')
-    
+
     possui_cadastro = input("Sim, Não:   ")
 
     if possui_cadastro.lower() == "sim":
@@ -93,16 +106,14 @@ def checar_cadastro(dados_usuario): #Verifica se o usuário é ou não cadstrado
         senha = input("Certo, agora digite sua senha:  ")
 
         # Load existing user data from the file
-        dados_armazenados = ler_dados('informacoes_de_login.json')
+        dados_armazenados = ler_dados('cadastro_usuario.json')
 
-        if dados_armazenados is not None and 'E-mail' in dados_armazenados and 'Senha' in dados_armazenados:
-            if email == dados_armazenados['E-mail'] and senha == dados_armazenados['Senha']:
+        if dados_armazenados and email in dados_armazenados:
+            if senha == dados_armazenados[email]['Senha']:
                 limpar_tela()
                 print('')
                 print('Login bem-sucedido!')
-                dados_usuario.update(dados_armazenados)  # Update dados_usuario with existing data
-                
-                return dados_usuario
+                return dados_armazenados[email]
             else:
                 limpar_tela()
                 print('')
@@ -111,19 +122,19 @@ def checar_cadastro(dados_usuario): #Verifica se o usuário é ou não cadstrado
         else:
             limpar_tela()
             print('')
-            print('Não há dados de cadastro encontrados. Realize o cadastro primeiro.')
+            print('Não há dados de cadastro encontrados para o e-mail informado. Realize o cadastro primeiro.')
             return checar_cadastro(dados_usuario)
 
     elif possui_cadastro.lower() == "nao":
         limpar_tela()
-        return dados_usuario
+        return {}
 
     else:
         limpar_tela()
         print('')
         print("Para selecionar as opções, digite Sim ou Não")
         return checar_cadastro(dados_usuario)
-
+    
 def intencao_cadastro(dados_usuario): #Verifica se o usuario quer se cadastrar
     limpar_tela()
 
@@ -146,7 +157,7 @@ def intencao_cadastro(dados_usuario): #Verifica se o usuario quer se cadastrar
         print()
         print('Você saiu do programa')
         print()
-        exit()
+        sys.exit()
 
     else:
         limpar_tela()
@@ -161,22 +172,29 @@ def reg_email(dados_usuario): #Recebe e verifica email
     
     print('')
     email = input("Por favor, indique seu e-mail:  ")
+
+    if "@" in email and ".com" in email:
     
-    limpar_tela()
-    
-    print('')
-    email2 = input("Agora confirme seu e-mail:  ")
-    
-    limpar_tela()
-    
-    if email == email2:
-        print('')
-        print('Seu e-mail foi cadastrado com sucesso')
-        guardar_dados('E-mail', email, dados_usuario)
-        reg_senha(dados_usuario)
+            limpar_tela()
+            
+            print('')
+            email2 = input("Agora confirme seu e-mail:  ")
+            
+            limpar_tela()
+        
+            if email == email2:
+                print('')
+                print('Seu e-mail foi cadastrado com sucesso')
+                guardar_dados('E-mail', email, dados_usuario)
+                reg_senha(dados_usuario)
+            else:
+                print('')
+                print('Os e-mails digitados são diferentes')
+                reg_email(dados_usuario)
     else:
-        print('')
-        print('Os e-mails digitados são diferentes')
+        limpar_tela()
+
+        print('O E-mail digitado é inválido certifique-se que ele está correto')
         reg_email(dados_usuario)
 
 def reg_senha(dados_usuario): #Recebe e verifica senha
@@ -308,41 +326,39 @@ def reg_sus(dados_usuario): #recebe e salva o cartão do sus
     sus = validar_numero('Digite apenas os números do seu cartão SUS, caso não tenha, digite 0: ')
     sus = str(sus)
 
+    if sus == '0':
+        limpar_tela()
+        print('')
+        print('Sem problemas, seguiremos para o próximo passo! ')
+        reg_endereco(dados_usuario)
 
-    if len(sus) != 15:
+    elif len(sus) != 15:
         limpar_tela()
         print('')
         print('Número SUS inválido')
         reg_sus(dados_usuario)
         
-        
     else:
-        if sus == 0:
-            limpar_tela()
-
-            print('')
-            print('Sem problemas, seguiremos para o próximo passo! ')
-            reg_endereco(dados_usuario)
-
-        else:
-            limpar_tela()
-
-            print('')
-            print('Número SUS cadastrado com sucesso')
-            guardar_dados('Numero Carteira SUS', sus, dados_usuario)
-            reg_endereco(dados_usuario)
-            return sus
+        limpar_tela()
+        print('')
+        print('Número SUS cadastrado com sucesso')
+        guardar_dados('Numero Carteira SUS', sus, dados_usuario)
+        reg_endereco(dados_usuario)
+        return sus
     
-def reg_endereco(dados_usuario): #Recebe e verifica endereco
+def reg_endereco(dados_usuario): #recebe e salva o endereço
     print('')
     endereco = input("Por favor, indique seu endereço:  ")
     print('')
-    
+
     limpar_tela()
-    
+
     print('Endereço cadastrado com sucesso')
+    print('')
+
+    dados_usuario['Endereco'] = endereco
     guardar_dados('Endereco', endereco, dados_usuario)
-    salvar_dados_arquivo('informacoes_de_login.json', dados_usuario)
+    salvar_dados_arquivo('cadastro_usuario.json', dados_usuario)
     logar(dados_usuario)
 
 #Fim do Cadastro
@@ -361,7 +377,7 @@ def logar(dados_usuario): #Verifica se o usuario quer logar depois de se cadastr
         print()
         print('Você saiu do programa')
         print()
-        exit()
+        sys.exit()
     else:
         limpar_tela()
         print('')
@@ -522,7 +538,3 @@ def manuseio_login(dados_usuario): #Função main que manipula as associadas
     menu(dados_usuario)
 
 manuseio_login({})
-
-#Mesmo não tendo conectividade com o backend ou banco de dados, nosso código retorna:
-#E-mail e senha de usuários já cadastrados, para enviar e verificar com o banco
-#Todas as informações de cadastro, como E-mail, senha, CPF, cartão SUS, endereço, para serem salvos no banco
