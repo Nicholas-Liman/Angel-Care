@@ -8,4 +8,4 @@ Nome e RM dos membros do grupo:
 
 *Nicholas Lima (RM-552744
 
-╸ Link para o vídeo disponibilizado.
+╸ Link para o vídeo: https://youtu.be/i08IqAVxjO0?si=s2sleVij2XckYbyN
