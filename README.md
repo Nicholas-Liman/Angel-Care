@@ -1,9 +1,11 @@
+Global Solution - NotreDame
 # Angel-Care
-Global-NotreDame
 
-Nome e RM dos membros do grupo.
--Maria Beatriz
--Nathalia Cameron
--Nicholas Lima
--++
+Nome e RM dos membros do grupo:
+*Maria Beatriz (RM-552669)
+
+*Nathalia Cameron (RM-553233)
+
+*Nicholas Lima (RM-552744
+
 ╸ Link para o vídeo disponibilizado.
