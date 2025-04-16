@@ -107,4 +107,4 @@ Função ainda não fornecida no código, mas deve finalizar o processo de cadas
 - Pode ser expandido com **menus gráficos** (ex: usando `tkinter`) ou com **testes automatizados**.
 
 ---
-Feito por **Nicholas Lima** como caso de estudo
+Feito por **Nicholas Lima** como caso de estudo em conjunto de Maria Beatriz e Nathalia Comeron
